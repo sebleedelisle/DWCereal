@@ -6,12 +6,6 @@
 // adjust this to make the overall time shorter or longer (millis)
 #define TOTAL_DURATION 20000
 
-#define DURATION_CEREAL_A 50000
-#define DURATION_CEREAL_B 60000
-#define DURATION_CEREAL_C 70000
-#define DURATION_CEREAL_D 80000
-#define DURATION_CEREAL_E 5000
-
 #define POT_PIN A5
 #define BUTTON_PIN 4
 #define LED_PIN 3
@@ -20,9 +14,6 @@
 #define SERVO_MIN 600 // 1 ms pulse
 #define SERVO_MAX 2400 // 2 ms pulse
 #define SNDPIN 8 // Trigger pin for FX Sound board
-#define SELEC_PIN1 10 // 5-way selector switch Pin1
-#define SELEC_PIN2 11 // 5-way selector switch Pin2
-#define SELEC_PIN3 12 // 5-way selector switch Pin3
 
 #define MODE_WAIT 0
 #define MODE_RUNNING 1
@@ -48,25 +39,8 @@ unsigned long startTime = 0;
 // the total length of the timer in mils. 
 long totalTimeMils = TOTAL_DURATION; 
 
-// sound trigger counter
-int soundTrigger = 0; 
-
 int rgb[] = {
   0,0,0}; 
-
-
-//For the 5way switch, these variables will hold our digital read values
-int pinState1 = 0;
-int pinState2 = 0;
-int pinState3 = 0;
-
-//For the 5way switch, these variables will hold our digital read values, this will keep the last number sent to the terminal 
-//in this way we'll keep from cramming the terminal with a continuous stream of numbers.
-int lastvalue = 0;
-
-//For the 5way switch, this variable will hold the current switch position
-int switchpos = 0;
-
 
 void setup() {
   Serial.begin(115200); 
@@ -82,54 +56,11 @@ void setup() {
   
   pinMode(SNDPIN, OUTPUT);
   digitalWrite(SNDPIN, HIGH); // Set the pin high as the default state
-  
-  //5way switch, 
-  pinMode(SELEC_PIN1, INPUT);
-  pinMode(SELEC_PIN2, INPUT);
-  pinMode(SELEC_PIN3, INPUT);
-
-  //First we read the pins:
-  pinState1 = digitalRead(SELEC_PIN1);
-  pinState2 = digitalRead(SELEC_PIN2);
-  pinState3 = digitalRead(SELEC_PIN3);
-
-  if(pinState1 == HIGH){  
-    if(pinState2 == HIGH){switchpos = 2;}
-    else {switchpos = 1;}}
-    else if(pinState2 == HIGH){
-      if(pinState1 == HIGH){switchpos = 2;}
-        else if(pinState3 == HIGH){switchpos = 4;}
-          else {switchpos = 3;}}       
-    else if(pinState3 ==HIGH){
-      if(pinState2 == HIGH){switchpos = 4;}
-        else {switchpos = 5;}}
-  
-  //Now that we know which position our switch is in, let's print it to the terminal.
-  //But first, we'll make sure the switch has moved
-  Serial.print("Switch Position:");
-  Serial.println(switchpos);
-    
-  if(switchpos == 1){ totalTimeMils = DURATION_CEREAL_A;}
-  if(switchpos == 2){ totalTimeMils = DURATION_CEREAL_B;}
-  if(switchpos == 3){ totalTimeMils = DURATION_CEREAL_C;}
-  if(switchpos == 4){ totalTimeMils = DURATION_CEREAL_D;}
-  if(switchpos == 5){ totalTimeMils = DURATION_CEREAL_E;}
- 
-  lastvalue = switchpos;
-  
-
 
 }
 
-void(* resetFunc) (void) = 0; //declare reset function @ address 0
-
 void loop() {
-  
 
-    Serial.print("Switch Position:");
-    Serial.println(switchpos);
-       
-    
   unsigned long currentTime = millis() - startTime; 
 
   // if we're in wait mode then we read the potentiometer to set the alarm time
@@ -145,43 +76,18 @@ void loop() {
       if(i<alarmTimeLed) setPixelHSB(i, 180+((i-alarmTimeLed)*15) , 100,10);  //strip.setPixelColor(i, strip.Color(0, 0, 50));
       else if(i==alarmTimeLed) setPixelHSB(i, 180+(i*10) , 0,10);
       else strip.setPixelColor(i, strip.Color(0, 0, 0));
-      } 
+    } 
 
     strip.show(); 
 
-  //First we read the pins:
-  pinState1 = digitalRead(SELEC_PIN1);
-  pinState2 = digitalRead(SELEC_PIN2);
-  pinState3 = digitalRead(SELEC_PIN3);
-
-  if(pinState1 == HIGH){  
-    if(pinState2 == HIGH){switchpos = 2;}
-    else {switchpos = 1;}}
-    else if(pinState2 == HIGH){
-      if(pinState1 == HIGH){switchpos = 2;}
-        else if(pinState3 == HIGH){switchpos = 4;}
-          else {switchpos = 3;}}       
-    else if(pinState3 ==HIGH){
-      if(pinState2 == HIGH){switchpos = 4;}
-        else {switchpos = 5;}}
-
-      if(switchpos == 1){ totalTimeMils = DURATION_CEREAL_A;}
-      if(switchpos == 2){ totalTimeMils = DURATION_CEREAL_B;}
-      if(switchpos == 3){ totalTimeMils = DURATION_CEREAL_C;}
-      if(switchpos == 4){ totalTimeMils = DURATION_CEREAL_D;}
-      if(switchpos == 5){ totalTimeMils = DURATION_CEREAL_E;}
-      
+   
   // else if the timer is currently running
   } else if(mode == MODE_RUNNING) { 
-    
-
-      
   
-    // if we're maxxed out on time, then reset
+    // if we're maxxed out on time, then reset to zero. This is just for test purposes
     if (currentTime>=totalTimeMils) {
-      resetFunc();  //call reset
-      //currentTime = 0; 
-      //startTime = millis(); 
+      currentTime = 0; 
+      startTime = millis(); 
     }
     
     // figure out which is the current highest pixel index based on the current time
@@ -189,23 +95,21 @@ void loop() {
 
     // if the pixel is the alarm time pixel then make the buzzer sound
     if(currentPixel == alarmTimeLed) { 
-     //digitalWrite(BUZZER_PIN, (millis()%400<200) );  
-     
-     // Trigger sound
-     digitalWrite(8, LOW); // bring the pin low to begin the activation
- 
-    //250ms to trigger the Sound board
-    Serial.println(soundTrigger);
-      if ( soundTrigger < 250 ) {
-        digitalWrite(SNDPIN, LOW); // bring the pin high again to end the activation
-        soundTrigger = soundTrigger++;
-        }     
+      //digitalWrite(BUZZER_PIN, (millis()%400<200) );  
+      // Trigger sound
+  digitalWrite(8, LOW); // bring the pin low to begin the activation
+  /*
+  According to the documentation, the Audio FX board needs 50ms to trigger. However,
+  I've found that coming from my 3.3v Arduino Pro, it needs 100ms to get the trigger
+  the going
+  */
+  delay(250); // hold the pin low long enough to trigger the board; may need to be longer for consistent triggering
+  digitalWrite(SNDPIN, HIGH); // bring the pin high again to end the activation
+  delay(500);
+      
     } 
-    
     else { 
       digitalWrite(BUZZER_PIN, LOW);  
-      digitalWrite(SNDPIN, HIGH);
-      soundTrigger = 0;
     }
 
     // if we're over time then flash the timer indicator pixel
@@ -268,9 +172,9 @@ void loop() {
       mode = MODE_RUNNING; 
       startTime = millis(); 
     } 
-    else if(mode == MODE_RUNNING) {       
+    else if(mode == MODE_RUNNING) { 
       mode = MODE_WAIT; 
-      
+
     } 
     // wait a bit as long as the button is pressed (debounce technique) 
     do {
@@ -291,5 +195,7 @@ void setPixelHSB(int pixelnum, int hue, int saturation, int brightness) {
   strip.setPixelColor(pixelnum, strip.Color(rgb[0], rgb[1], rgb[2]));
 
 }
+
+
 
 

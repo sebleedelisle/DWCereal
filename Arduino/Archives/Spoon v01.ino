@@ -10,7 +10,7 @@
 #define MODE_WAIT 0
 #define MODE_RUNNING 1
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(20, 7, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(20, 6, NEO_GRB + NEO_KHZ800);
 
 int timer = 0; // timer goes from 0 to 1000 (arbitrary)
 unsigned long startTime = 0; 
