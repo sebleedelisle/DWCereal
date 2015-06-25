@@ -27,6 +27,7 @@
 #define MODE_WAIT 0
 #define MODE_RUNNING 1
 
+
 //initialise LED strip and servo. 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(30, 6, NEO_GRB + NEO_KHZ800);
 // We can't use the standard servo library due to conflicts with the neopixel strip
@@ -79,10 +80,10 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT); 
   pinMode(LED_PIN, OUTPUT); 
   digitalWrite(BUZZER_PIN, LOW);  
-  
+
   pinMode(SNDPIN, OUTPUT);
   digitalWrite(SNDPIN, HIGH); // Set the pin high as the default state
-  
+
   //5way switch, 
   pinMode(SELEC_PIN1, INPUT);
   pinMode(SELEC_PIN2, INPUT);
@@ -94,29 +95,56 @@ void setup() {
   pinState3 = digitalRead(SELEC_PIN3);
 
   if(pinState1 == HIGH){  
-    if(pinState2 == HIGH){switchpos = 2;}
-    else {switchpos = 1;}}
-    else if(pinState2 == HIGH){
-      if(pinState1 == HIGH){switchpos = 2;}
-        else if(pinState3 == HIGH){switchpos = 4;}
-          else {switchpos = 3;}}       
-    else if(pinState3 ==HIGH){
-      if(pinState2 == HIGH){switchpos = 4;}
-        else {switchpos = 5;}}
-  
+    if(pinState2 == HIGH){
+      switchpos = 2;
+    }
+    else {
+      switchpos = 1;
+    }
+  }
+  else if(pinState2 == HIGH){
+    if(pinState1 == HIGH){
+      switchpos = 2;
+    }
+    else if(pinState3 == HIGH){
+      switchpos = 4;
+    }
+    else {
+      switchpos = 3;
+    }
+  }       
+  else if(pinState3 ==HIGH){
+    if(pinState2 == HIGH){
+      switchpos = 4;
+    }
+    else {
+      switchpos = 5;
+    }
+  }
+
   //Now that we know which position our switch is in, let's print it to the terminal.
   //But first, we'll make sure the switch has moved
   Serial.print("Switch Position:");
   Serial.println(switchpos);
-    
-  if(switchpos == 1){ totalTimeMils = DURATION_CEREAL_A;}
-  if(switchpos == 2){ totalTimeMils = DURATION_CEREAL_B;}
-  if(switchpos == 3){ totalTimeMils = DURATION_CEREAL_C;}
-  if(switchpos == 4){ totalTimeMils = DURATION_CEREAL_D;}
-  if(switchpos == 5){ totalTimeMils = DURATION_CEREAL_E;}
- 
+
+  if(switchpos == 1){ 
+    totalTimeMils = DURATION_CEREAL_A;
+  }
+  if(switchpos == 2){ 
+    totalTimeMils = DURATION_CEREAL_B;
+  }
+  if(switchpos == 3){ 
+    totalTimeMils = DURATION_CEREAL_C;
+  }
+  if(switchpos == 4){ 
+    totalTimeMils = DURATION_CEREAL_D;
+  }
+  if(switchpos == 5){ 
+    totalTimeMils = DURATION_CEREAL_E;
+  }
+
   lastvalue = switchpos;
-  
+
 
 
 }
@@ -124,19 +152,19 @@ void setup() {
 void(* resetFunc) (void) = 0; //declare reset function @ address 0
 
 void loop() {
-  
 
-    Serial.print("Switch Position:");
-    Serial.println(switchpos);
-       
-    
+
+  Serial.print("Switch Position:");
+  Serial.println(switchpos);
+
+
   unsigned long currentTime = millis() - startTime; 
 
   // if we're in wait mode then we read the potentiometer to set the alarm time
   if(mode == MODE_WAIT) { 
-    
+
     alarmTimeLed = map(analogRead(POT_PIN), 0, 1024, 0, strip.numPixels()); 
-    
+
     // iterate through all the neopixels
     for(uint16_t i=0; i<strip.numPixels(); i++) {
       // if the pixel is less than the alarmTimeLed pixel then colour this as the rainbow
@@ -145,63 +173,91 @@ void loop() {
       if(i<alarmTimeLed) setPixelHSB(i, 180+((i-alarmTimeLed)*15) , 100,10);  //strip.setPixelColor(i, strip.Color(0, 0, 50));
       else if(i==alarmTimeLed) setPixelHSB(i, 180+(i*10) , 0,10);
       else strip.setPixelColor(i, strip.Color(0, 0, 0));
-      } 
+    } 
 
     strip.show(); 
 
-  //First we read the pins:
-  pinState1 = digitalRead(SELEC_PIN1);
-  pinState2 = digitalRead(SELEC_PIN2);
-  pinState3 = digitalRead(SELEC_PIN3);
+    //First we read the pins:
+    pinState1 = digitalRead(SELEC_PIN1);
+    pinState2 = digitalRead(SELEC_PIN2);
+    pinState3 = digitalRead(SELEC_PIN3);
 
-  if(pinState1 == HIGH){  
-    if(pinState2 == HIGH){switchpos = 2;}
-    else {switchpos = 1;}}
+    if(pinState1 == HIGH){  
+      if(pinState2 == HIGH){
+        switchpos = 2;
+      }
+      else {
+        switchpos = 1;
+      }
+    }
     else if(pinState2 == HIGH){
-      if(pinState1 == HIGH){switchpos = 2;}
-        else if(pinState3 == HIGH){switchpos = 4;}
-          else {switchpos = 3;}}       
+      if(pinState1 == HIGH){
+        switchpos = 2;
+      }
+      else if(pinState3 == HIGH){
+        switchpos = 4;
+      }
+      else {
+        switchpos = 3;
+      }
+    }       
     else if(pinState3 ==HIGH){
-      if(pinState2 == HIGH){switchpos = 4;}
-        else {switchpos = 5;}}
+      if(pinState2 == HIGH){
+        switchpos = 4;
+      }
+      else {
+        switchpos = 5;
+      }
+    }
 
-      if(switchpos == 1){ totalTimeMils = DURATION_CEREAL_A;}
-      if(switchpos == 2){ totalTimeMils = DURATION_CEREAL_B;}
-      if(switchpos == 3){ totalTimeMils = DURATION_CEREAL_C;}
-      if(switchpos == 4){ totalTimeMils = DURATION_CEREAL_D;}
-      if(switchpos == 5){ totalTimeMils = DURATION_CEREAL_E;}
-      
-  // else if the timer is currently running
-  } else if(mode == MODE_RUNNING) { 
-    
+    if(switchpos == 1){ 
+      totalTimeMils = DURATION_CEREAL_A;
+    }
+    if(switchpos == 2){ 
+      totalTimeMils = DURATION_CEREAL_B;
+    }
+    if(switchpos == 3){ 
+      totalTimeMils = DURATION_CEREAL_C;
+    }
+    if(switchpos == 4){ 
+      totalTimeMils = DURATION_CEREAL_D;
+    }
+    if(switchpos == 5){ 
+      totalTimeMils = DURATION_CEREAL_E;
+    }
 
-      
-  
+    // else if the timer is currently running
+  } 
+  else if(mode == MODE_RUNNING) { 
+
+
+
+
     // if we're maxxed out on time, then reset
     if (currentTime>=totalTimeMils) {
       resetFunc();  //call reset
       //currentTime = 0; 
       //startTime = millis(); 
     }
-    
+
     // figure out which is the current highest pixel index based on the current time
     int currentPixel = map(currentTime, 0, totalTimeMils, 0, strip.numPixels()); 
 
     // if the pixel is the alarm time pixel then make the buzzer sound
     if(currentPixel == alarmTimeLed) { 
-     //digitalWrite(BUZZER_PIN, (millis()%400<200) );  
-     
-     // Trigger sound
-     digitalWrite(8, LOW); // bring the pin low to begin the activation
- 
-    //250ms to trigger the Sound board
-    Serial.println(soundTrigger);
+      //digitalWrite(BUZZER_PIN, (millis()%400<200) );  
+
+      // Trigger sound
+      digitalWrite(8, LOW); // bring the pin low to begin the activation
+
+      //250ms to trigger the Sound board
+      Serial.println(soundTrigger);
       if ( soundTrigger < 250 ) {
         digitalWrite(SNDPIN, LOW); // bring the pin high again to end the activation
         soundTrigger = soundTrigger++;
-        }     
+      }     
     } 
-    
+
     else { 
       digitalWrite(BUZZER_PIN, LOW);  
       digitalWrite(SNDPIN, HIGH);
@@ -211,7 +267,8 @@ void loop() {
     // if we're over time then flash the timer indicator pixel
     if(currentPixel >= alarmTimeLed) { 
       analogWrite(LED_PIN, sin(millis()/100.0f) * 127.0f + 127.0f );  
-    } else {
+    } 
+    else {
       digitalWrite(LED_PIN, LOW); 
     }
 
@@ -233,19 +290,20 @@ void loop() {
         }
         // make pixels above the timer pixel dimmer rainbows
         else if(i>alarmTimeLed) {
-          setPixelHSB(i, i*10 - (millis()/10), 100,3); 
-          //dark red : 
-          //setPixelHSB(i, 0, 100, 3); 
-          //strip.setPixelColor(i, strip.Color(50, 50, 50));
+          //setPixelHSB(i, i*10 - (millis()/10), 100,3); 
+          
+         // CHANGE THE COLOUR OF THE PIXELS OVER THE LINE HERE : 
+         
+          strip.setPixelColor(i, strip.Color(0, 20, 0)); 
         }
 
-      // else if we are above the current pixel
+        // else if we are above the current pixel
       }
       else {
         // then light the timer indicator 
         if(i==alarmTimeLed) {
           setPixelHSB(i, 0, 0, 10.0f); 
-        // and turn all the other LEDs off
+          // and turn all the other LEDs off
         } 
         else { 
           strip.setPixelColor(i, strip.Color(0, 0, 0));
@@ -270,7 +328,7 @@ void loop() {
     } 
     else if(mode == MODE_RUNNING) {       
       mode = MODE_WAIT; 
-      
+
     } 
     // wait a bit as long as the button is pressed (debounce technique) 
     do {
@@ -285,11 +343,14 @@ void loop() {
 
 void setPixelHSB(int pixelnum, int hue, int saturation, int brightness) { 
 
+  // ranges  = hue 0-360
+  // sat + brightness 0 - 100 
   while(hue<0) hue+=360; 
   while(hue>360) hue-=360; 
   H2R_HSBtoRGB( hue, saturation, brightness, &rgb[0]); 
   strip.setPixelColor(pixelnum, strip.Color(rgb[0], rgb[1], rgb[2]));
 
 }
+
 
 
