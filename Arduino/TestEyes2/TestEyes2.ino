@@ -19,7 +19,7 @@ void setup() {
   Serial.begin(115200);
   matrixLeft.begin(0x70);
   matrixRight.begin(0x71);
-  matrixLeft.setBrightness(1); 
+  matrixLeft.setBrightness(5); 
 }
 
 
