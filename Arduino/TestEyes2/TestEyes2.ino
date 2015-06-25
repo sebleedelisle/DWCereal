@@ -40,15 +40,16 @@ void updateAnimation() {
   // how fast the pupil moves
   // how fast the eyes blink
   // how frequently the eyes blink
-  
+
   int eyeMoveProgress = -1; 
   boolean eyeMoving = false; 
-   if(eyeMoveCountdown<5) { 
-    eyeMoveProgress = 5-eyeMoveCountdown; 
+  int eyeMoveFrames = 5; 
+  if(eyeMoveCountdown<eyeMoveFrames) { 
+    eyeMoveProgress = eyeMoveFrames-eyeMoveCountdown; 
     eyeMoving = true; 
   }
-  
-  
+
+
   int blinkProgress = -1; 
   int blinkFrames = 14; 
   if(nextBlinkCountdown<blinkFrames) { 
@@ -60,13 +61,13 @@ void updateAnimation() {
 
   int top = (blinkProgress<blinkFrames/2) ? blinkProgress : blinkFrames-blinkProgress; 
 
-  energy = map(analogRead(A8),50,900,14,0); 
+  energy = map(cos(radians(frameCount*0.1))*100,-100,100,14,0); 
   int blinkspeed = map(energy, 0, 14, 6,1); 
 
   // sleepy determines how sleepy we are 0 to 7 (7 is asleep); 
   int sleepy = map(energy,1,14,6,0);
   if(energy == 0) sleepy = 7; 
- 
+
   if(top<sleepy) top = sleepy; 
   //Serial.println(sleepy); 
 
@@ -81,42 +82,60 @@ void updateAnimation() {
     matrixLeft.fillRect(0,top,8,8-top, LED_ON);
 
     // pupil
-    int eyey = eyeY; 
+    float eyey = eyeY; 
+    float eyex = eyeX; 
 
-    if(sleepy+1>eyey) eyey = constrain(sleepy+1,0,4); 
+    if(eyeMoving) { 
+      Serial.println( (float)((float)eyeMoveProgress/(float)eyeMoveFrames));
+      eyex = (float)(targetEyeX - eyeX) *(float)((float)eyeMoveProgress/(float)eyeMoveFrames);  
+      eyey = (float)(targetEyeY - eyeY) * (float)((float)eyeMoveProgress/(float)eyeMoveFrames);  
+      eyex+=eyeX; 
+      eyey+=eyeY; 
 
-    matrixLeft.fillRect(eyeX,eyey,3,3,LED_OFF); 
+    }
+
+    // for rolling eyes
+//    eyex = 3.0f + cos(radians(frameCount*12))*1.5f; 
+//    eyey = 3.0f + sin(radians(frameCount*12))*1.5f; 
+
+
+    if(sleepy+1>eyey) {
+      eyex = constrain(eyex,2,3); 
+      eyey = constrain(sleepy+1,0,4); 
+    }
+    matrixLeft.fillRect(eyex,eyey,3,3,LED_OFF); 
 
     if(top>=1) { 
       matrixLeft.fillRect(0,top, 8,1,LED_ON); 
     }
     // for 
-//    if((top>3) && (top == sleepy)) { 
-//      matrixLeft.drawPixel(0,top-1,LED_ON);  
-//      matrixLeft.drawPixel(7,top-1,LED_ON);  
-// 
-//    }
+    //    if((top>3) && (top == sleepy)) { 
+    //      matrixLeft.drawPixel(0,top-1,LED_ON);  
+    //      matrixLeft.drawPixel(7,top-1,LED_ON);  
+    // 
+    //    }
 
     matrixLeft.drawPixel(0,0,LED_OFF);  
     matrixLeft.drawPixel(7,0,LED_OFF);  
     matrixLeft.drawPixel(7,7,LED_OFF);  
     matrixLeft.drawPixel(0,7,LED_OFF);  
 
-  } else { 
-     //asleep! 
-     matrixLeft.drawLine(0,4,0,6, LED_ON); 
-     matrixLeft.drawLine(1,7,6,7, LED_ON); 
-     matrixLeft.drawLine(7,4,7,6, LED_ON);
-     matrixLeft.drawLine(1,5,1,6, LED_ON); 
-     matrixLeft.drawLine(2,6,5,6, LED_ON); 
-     matrixLeft.drawLine(6,5,6,6, LED_ON);
-     
-     // MORE ANGULAR SHUT EYES
-//          matrixLeft.drawLine(0,5,2,7, LED_ON); 
-//     matrixLeft.drawLine(2,7,5,7, LED_ON); 
-//     matrixLeft.drawLine(5,7,7,5, LED_ON);
-     
-   
+  } 
+  else { 
+    //asleep! 
+    matrixLeft.drawLine(0,4,0,6, LED_ON); 
+    matrixLeft.drawLine(1,7,6,7, LED_ON); 
+    matrixLeft.drawLine(7,4,7,6, LED_ON);
+    matrixLeft.drawLine(1,5,1,6, LED_ON); 
+    matrixLeft.drawLine(2,6,5,6, LED_ON); 
+    matrixLeft.drawLine(6,5,6,6, LED_ON);
+
+    // MORE ANGULAR SHUT EYES
+    //          matrixLeft.drawLine(0,5,2,7, LED_ON); 
+    //     matrixLeft.drawLine(2,7,5,7, LED_ON); 
+    //     matrixLeft.drawLine(5,7,7,5, LED_ON);
+
+
   }
   matrixLeft.writeDisplay();
   // Serial.println(top); 
@@ -131,20 +150,38 @@ void updateAnimation() {
   if(nextBlinkCountdown <0) {   
     nextBlinkCountdown = random(map(energy, 0, 14, 200,30), map(energy, 0, 14, 800,200)); 
   }
-  
+
   eyeMoveCountdown--; 
   if(eyeMoveCountdown <0) { 
-     eyeMoveCountdown = random(map(energy, 0, 14, 200,30), map(energy, 0, 14, 800,200)); 
-     targetEyeX = random(1,5); 
-     targetEyeY = random(1,5);
-//    Serial.print(eyeX);  
-//     Serial.print(" " ); 
-//     Serial.println(eyeY); 
+    eyeX = targetEyeX; 
+    eyeY = targetEyeY; 
+
+    eyeMoveCountdown = random(map(energy, 0, 14, 200,30), map(energy, 0, 14, 800,200));
+    boolean middle =  (random(100)<20);
+    if(middle) {
+
+      targetEyeX = 3; 
+      targetEyeY = 3;
+    } 
+    else { 
+      float angle = random(0,360);
+      float distance = 1.2f; //(float) (random(30,100)/100.0f) * 3; //   
+      targetEyeX = 3.0f + cos(radians(angle))*distance; 
+      targetEyeY = 3.0f + sin(radians(angle))*distance; 
+      
+
+    }
+    //    Serial.print(eyeX);  
+    //     Serial.print(" " ); 
+    //     Serial.println(eyeY); 
   }
-  
+
   frameCount++; 
-  
+
 }
+
+
+
 
 
 
