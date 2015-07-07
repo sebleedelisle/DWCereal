@@ -64,7 +64,6 @@ void updateEyesAnimation() {
 
   int top = (blinkProgress < blinkFrames / 2) ? blinkProgress : blinkFrames - blinkProgress;
 
-  energy = map(cos(radians(frameCount * 0.1)) * 100, -100, 100, 14, 0);
   int blinkspeed = map(energy, 0, 14, 6, 1);
 
   // sleepy determines how sleepy we are 0 to 7 (7 is asleep);
