@@ -18,7 +18,7 @@
 #define LED_STRIP_BRIGHTNESS 20 // from 0 to 255
 #define DEMO_DISSIPATE_TIME 1000 // 3 seconds to dissipate each energy bar in demo mode
 #define DISSIPATE_TIME 60000 * 30 // 30 minutes to dissipate in normal mode
-
+#define TIME_BETWEEN_SPOONFULS 100 // in mils
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUM_LEDS, LED_STRIP_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -94,8 +94,11 @@ void startDissipating() {
 
 boolean checkAccelerometer() {
   int yAxis = analogRead(YAXIS_INPUT);
+  
+  Serial.println(yAxis); 
+  
   // debounce
-  if ((unsigned long)(millis() - lastSpoonMoveTime) > 400) {
+  if ((unsigned long)(millis() - lastSpoonMoveTime) > TIME_BETWEEN_SPOONFULS) {
 
     if (spoonDown && (yAxis < 320)) {
       spoonDown = false;
