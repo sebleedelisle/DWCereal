@@ -78,12 +78,18 @@ void startDissipating() {
     for (int i = 0; i < NUM_LEDS; i++ ) {
       strip.setPixelColor(i, strip.Color(0, 255, 0));
       strip.show();
-      delay(20);
+      delay(10);
+       updateEyes();
+      delay(10);
+    
     }
     for (int i = 0; i < NUM_LEDS; i++ ) {
       strip.setPixelColor(i, strip.Color(0, LED_STRIP_BRIGHTNESS, 0));
       strip.show();
-      delay(20);
+      delay(10);
+      updateEyes();
+  delay(10);
+    
     }
   }
   startTime = millis();
