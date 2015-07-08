@@ -109,8 +109,8 @@ void updateEyesAnimation(boolean rolling) {
     
     // for rolling eyes
     if(rolling)  { 
-      eyex = 3.0f + cos(radians(frameCount*12))*1.5f;
-      eyey = 3.0f + sin(radians(frameCount*12))*1.5f;
+      eyex = 3.0f + cos(radians(frameCount*36))*1.5f;
+      eyey = 3.0f + sin(radians(frameCount*36))*1.5f;
     }
     
     matrix.fillRect(eyex, eyey, 3, 3, LED_OFF);

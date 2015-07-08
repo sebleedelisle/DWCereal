@@ -77,7 +77,7 @@ void loop() {
 
 void startDissipating() {
 
-  for (int j = 0; j < 5; j++) {
+  for (int j = 0; j < 15; j++) {
     for (int i = 0; i < NUM_LEDS; i++ ) {
       strip.setPixelColor(i, strip.Color(0, 255, 0));
       strip.show();
