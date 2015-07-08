@@ -52,6 +52,9 @@ void setup() {
 
 }
 
+
+
+
 void loop() {
 
   updateEyes();
@@ -79,7 +82,7 @@ void startDissipating() {
       strip.setPixelColor(i, strip.Color(0, 255, 0));
       strip.show();
       delay(10);
-       updateEyes();
+       updateEyesAnimation(true);
       delay(10);
     
     }
@@ -87,7 +90,7 @@ void startDissipating() {
       strip.setPixelColor(i, strip.Color(0, LED_STRIP_BRIGHTNESS, 0));
       strip.show();
       delay(10);
-      updateEyes();
+      updateEyesAnimation(true);
   delay(10);
     
     }
@@ -151,5 +154,4 @@ void setPixelHSB(int pixelnum, int hue, int saturation, int brightness) {
   // strip.setPixelColor(pixelnum, strip.Color(rgb[0], rgb[1], rgb[2]));
 
 }
-
 

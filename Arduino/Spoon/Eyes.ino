@@ -24,17 +24,17 @@ void initEyes() {
 }
 
 
-
 void updateEyes() { 
   
    if ((unsigned long) (millis() - lastFrame) > 10) { // 1000/10  = 100fps
-    updateEyesAnimation();
+    updateEyesAnimation(false);
   }
   
 }
 
 
-void updateEyesAnimation() {
+
+void updateEyesAnimation(boolean rolling) {
 
   lastFrame = millis();
 
@@ -64,7 +64,7 @@ void updateEyesAnimation() {
 
   int top = (blinkProgress < blinkFrames / 2) ? blinkProgress : blinkFrames - blinkProgress;
 
-  int blinkspeed = constrait(map(energy, 0, 13, 6, 1), 1, 6);
+  int blinkspeed = constrain(map(energy, 0, 13, 6, 1), 1, 6);
 
   // sleepy determines how sleepy we are 0 to 7 (7 is asleep);
   int sleepy = map(energy, 1, 14, 6, 0);
@@ -105,6 +105,14 @@ void updateEyesAnimation() {
       eyex = constrain(eyex, 2, 3);
       eyey = constrain(sleepy + 1, 0, 4);
     }
+    
+    
+    // for rolling eyes
+    if(rolling)  { 
+      eyex = 3.0f + cos(radians(frameCount*12))*1.5f;
+      eyey = 3.0f + sin(radians(frameCount*12))*1.5f;
+    }
+    
     matrix.fillRect(eyex, eyey, 3, 3, LED_OFF);
 
     if (top >= 1) {
