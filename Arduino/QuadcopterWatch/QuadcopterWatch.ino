@@ -8,6 +8,8 @@
 #include <HSBColor.h>
 
 
+#define LED_ZERO 0
+
 #define MODE_SELECT 0
 #define MODE_ACTIVE 1
 // Change these two numbers to the pins connected to your encoder.
@@ -172,7 +174,7 @@ void clearLed() {
 }
 
 void setLed(int lednum, bool on) {
-  lednum = lednum % 16;
+  lednum = (lednum + LED_ZERO) % 16;
   while (lednum < 0) lednum += 16;
 
   ledBitMask |= 1 << lednum;
